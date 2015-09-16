@@ -20,6 +20,7 @@
 void usage(char *arg0) {
 	fprintf(stderr, "%s -s <source type> -t <target type> -c <class> -p <perm>[,<perm2>,<perm3>,...] [-P <policy file>] [-o <output file>] [-l|--load]\n", arg0);
 	fprintf(stderr, "%s -Z permissive_type [-P <policy file>] [-o <output file>] [-l|--load]\n", arg0);
+	fprintf(stderr, "%s -z permissive_type [-P <policy file>] [-o <output file>] [-l|--load]\n", arg0);
 	exit(1);
 }
 
@@ -172,6 +173,7 @@ int main(int argc, char **argv) {
 	int ret_add_rule;
 	int load = 0;
 	FILE *fp;
+	int is_permissive = 0;
 
 	struct option long_options[] = {
 		{"source", required_argument, NULL, 's'},
@@ -181,11 +183,12 @@ int main(int argc, char **argv) {
 		{"policy", required_argument, NULL, 'P'},
 		{"output", required_argument, NULL, 'o'},
 		{"permissive", required_argument, NULL, 'Z'},
+		{"not-permissive", required_argument, NULL, 'z'},
 		{"load", no_argument, NULL, 'l'},
 		{NULL, 0, NULL, 0}
 	};
 
-	while ((ch = getopt_long(argc, argv, "s:t:c:p:P:o:Z:l", long_options, NULL)) != -1) {
+	while ((ch = getopt_long(argc, argv, "s:t:c:p:P:o:Z:z:l", long_options, NULL)) != -1) {
 		switch (ch) {
 		case 's':
 			source = optarg;
@@ -207,6 +210,11 @@ int main(int argc, char **argv) {
 			break;
 		case 'Z':
 			permissive = optarg;
+			is_permissive = 1;
+			break;
+                case 'z':
+			permissive = optarg;
+			is_permissive = 0;
 			break;
 		case 'l':
 			load = 1;
@@ -240,8 +248,8 @@ int main(int argc, char **argv) {
 			fprintf(stderr, "type %s does not exist\n", permissive);
 			return 2;
 		}
-		if (ebitmap_set_bit(&policydb.permissive_map, type->s.value, 1)) {
-			fprintf(stderr, "Could not set bit in permissive map\n");
+		if (ebitmap_set_bit(&policydb.permissive_map, type->s.value, is_permissive)) {
+			fprintf(stderr, "Could not %s bit in permissive map\n", is_permissive ? "set" : "clear");
 			return 1;
 		}
 	} else {

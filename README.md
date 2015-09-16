@@ -24,15 +24,19 @@ This tool injects allow rules into binary SELinux kernel policies.
 
 Ensure that you have installed _android-ndk_ properly. Then run:
 
-    git clone https://github.com/xmikos/setools-android.git
+    git clone https://github.com/hitmoon/setools-android.git
     cd setools-android
     ndk-build
 
 
 ## Usage
 
+    inject rules:
     sepolicy-inject -s <source type> -t <target type> -c <class> -p <perm>[,<perm2>,<perm3>,...] [-P <policy file>] [-o <output file>] [-l|--load]
+    add permissive domain:
     sepolicy-inject -Z permissive_type [-P <policy file>] [-o <output file>] [-l|--load]
+    add non-permissive domain:
+    sepolicy-inject -z permissive_type [-P <policy file>] [-o <output file>] [-l|--load]
 
 For example if you want to allow _vdc_ to write to pseudo-terminal (so you can see replies from _vdc_ command):
 
@@ -48,5 +52,7 @@ This repository contains other opensource code:
  * libsepol
 
 Based on [setools-android][3] by Dmitry Podgorny (pasis)
+Based on [setools-android][4] by Michal Krenek (xmikos)
 
 [3]: https://github.com/pasis/setools-android
+[4]: https://github.com/xmikos/setools-android
