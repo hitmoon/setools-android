@@ -3,6 +3,7 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 LOCAL_MODULE := seinfo
 LOCAL_CFLAGS :=
+LOCAL_LDFLAGS := -pie -fPIE
 LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/libsepol/include \
 	$(LOCAL_PATH)/include
@@ -17,6 +18,7 @@ include $(BUILD_EXECUTABLE)
 include $(CLEAR_VARS)
 LOCAL_MODULE := sesearch
 LOCAL_CFLAGS := -std=gnu99
+LOCAL_LDFLAGS := -pie -fPIE
 LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/libsepol/include \
 	$(LOCAL_PATH)/include
@@ -31,6 +33,7 @@ include $(BUILD_EXECUTABLE)
 include $(CLEAR_VARS)
 LOCAL_MODULE := sepolicy-inject
 LOCAL_CFLAGS :=
+LOCAL_LDFLAGS := -pie -fPIE
 LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/libsepol/include
 
