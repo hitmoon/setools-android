@@ -24,6 +24,9 @@ $ seinfo sepolicy | grep Permissive
 $ seinfo sepolicy2 | grep Permissive
    Permissives:         1    Polcap:              2
 
+Make a doamin non-permissive
+$ ./sepolicy-inject -z shell -P sepolicy -o sepolicy2
+
 
 TODO:
 
