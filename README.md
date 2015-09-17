@@ -51,8 +51,8 @@ This repository contains other opensource code:
  * bzip2
  * libsepol
 
-Based on [setools-android][3] by Dmitry Podgorny (pasis)
+Based on [setools-android][3] by Dmitry Podgorny (pasis)  
 Based on [setools-android][4] by Michal Krenek (xmikos)
 
-[3]: https://github.com/pasis/setools-android
+[3]: https://github.com/pasis/setools-android  
 [4]: https://github.com/xmikos/setools-android
