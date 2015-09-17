@@ -114,6 +114,56 @@ int avtab_insert(avtab_t * h, avtab_key_t * key, avtab_datum_t * datum)
 	return 0;
 }
 
+
+static void
+avtab_remove_node(avtab_t * h, int hvalue, avtab_ptr_t prev)
+{
+	avtab_ptr_t node;
+
+	if (prev) {
+		node = prev->next;
+		prev->next = node->next;
+	} else {
+		node = h->htable[hvalue];
+		h->htable[hvalue] = NULL;
+	}
+	free(node);
+
+	h->nel--;
+}
+/*
+ * remove a rule
+ */
+
+int avtab_remove(avtab_t * h, avtab_key_t * key)
+{
+	int hvalue;
+	avtab_ptr_t prev, cur;
+	int found = 0;
+	uint16_t specified =
+	    key->specified & ~(AVTAB_ENABLED | AVTAB_ENABLED_OLD);
+
+	if (!h || !h->htable)
+		return SEPOL_ENOMEM;
+
+	hvalue = avtab_hash(key, h->mask);
+	for (prev = NULL, cur = h->htable[hvalue];
+	     cur; prev = cur, cur = cur->next) {
+		if (key->source_type == cur->key.source_type &&
+		    key->target_type == cur->key.target_type &&
+		    key->target_class == cur->key.target_class &&
+		    (specified & cur->key.specified)) {
+			found = 1;
+			break;
+		}
+
+	}
+	if (found)
+		avtab_remove_node(h, hvalue, prev);
+
+	return 0;
+}
+
 /* Unlike avtab_insert(), this function allow multiple insertions of the same 
  * key/specified mask into the table, as needed by the conditional avtab.  
  * It also returns a pointer to the node inserted.

@@ -24,9 +24,8 @@
 //extern int policydb_index_decls(policydb_t *p);
 
 void usage(char *arg0) {
-	fprintf(stderr, "%s -s <source type> -t <target type> -c <class> -p <perm>[,<perm2>,<perm3>,...] [-P <policy file>] [-o <output file>] [-l|--load]\n", arg0);
-	fprintf(stderr, "%s -Z permissive_type [-P <policy file>] [-o <output file>] [-l|--load]\n", arg0);
-	fprintf(stderr, "%s -z permissive_type [-P <policy file>] [-o <output file>] [-l|--load]\n", arg0);
+	fprintf(stderr, "%s -s <source type> -t <target type> -c <class> -p <perm>[,<perm2>,<perm3>,...] [-P <policy file>] [-o <output file>] [-l|--load] [-r|--remove]\n", arg0);
+	fprintf(stderr, "%s <-Z|-z> permissive_type [-P <policy file>] [-o <output file>] [-l|--load]\n", arg0);
 	exit(1);
 }
 
@@ -107,7 +106,7 @@ void create_domain(char *domain, policydb_t *policy)
 	set_attr("domain", policy, value);
 }
 
-int add_rule(char *s, char *t, char *c, char *p, policydb_t *policy) {
+int mod_rule(int add, char *s, char *t, char *c, char *p, policydb_t *policy) {
 	type_datum_t *src, *tgt;
 	class_datum_t *cls;
 	perm_datum_t *perm;
@@ -149,17 +148,25 @@ int add_rule(char *s, char *t, char *c, char *p, policydb_t *policy) {
 	key.specified = AVTAB_ALLOWED;
 	av = avtab_search(&policy->te_avtab, &key);
 
-	if (av == NULL) {
+	if (av == NULL && add) {
 		av = cmalloc(sizeof av);
 		av->data |= 1U << (perm->s.value - 1);
 		int ret = avtab_insert(&policy->te_avtab, &key, av);
 		if (ret) {
 			fprintf(stderr, "Error inserting into avtab\n");
 			return 1;
-		}	
+		}
 	}
-
-	av->data |= 1U << (perm->s.value - 1);
+	else if (av && add) {
+		av->data |= 1U << (perm->s.value - 1);
+	}
+	else if (av && !add){
+		int ret = avtab_remove(&policy->te_avtab, &key);
+		if (ret) {
+			fprintf(stderr, "Error removing from avtab\n");
+			return 1;
+		}
+	}
 
 	return 0;
 }
@@ -244,10 +251,11 @@ int main(int argc, char **argv) {
 	struct policy_file pf, outpf;
 	sidtab_t sidtab;
 	int ch;
-	int ret_add_rule;
+	int ret;
 	int load = 0;
 	FILE *fp;
 	int is_permissive = 0;
+	int remove_rule = 0;
 
 	struct option long_options[] = {
 		{"source", required_argument, NULL, 's'},
@@ -259,10 +267,11 @@ int main(int argc, char **argv) {
 		{"permissive", required_argument, NULL, 'Z'},
 		{"not-permissive", required_argument, NULL, 'z'},
 		{"load", no_argument, NULL, 'l'},
+		{"remove", no_argument, NULL, 'r'},
 		{NULL, 0, NULL, 0}
 	};
 
-	while ((ch = getopt_long(argc, argv, "s:t:c:p:P:o:Z:z:l", long_options, NULL)) != -1) {
+	while ((ch = getopt_long(argc, argv, "s:t:c:p:P:o:Z:z:lr", long_options, NULL)) != -1) {
 		switch (ch) {
 		case 's':
 			source = optarg;
@@ -292,6 +301,9 @@ int main(int argc, char **argv) {
 			break;
 		case 'l':
 			load = 1;
+			break;
+		case 'r':
+			remove_rule = 1;
 			break;
 		default:
 			usage(argv[0]);
@@ -332,9 +344,17 @@ int main(int argc, char **argv) {
 		if (perm_token)
 			create_domain(source, &policydb);
 		while (perm_token) {
-			if (ret_add_rule = add_rule(source, target, class, perm_token, &policydb)) {
-				fprintf(stderr, "Could not add rule for perm: %s\n", perm_token);
-				return ret_add_rule;
+			if (remove_rule) { /* remove rule */
+				if (ret = mod_rule(0, source, target, class, perm_token, &policydb)) {
+					fprintf(stderr, "Could not add rule for perm: %s\n", perm_token);
+					return ret;
+				}
+			}
+			else {	          /* add rule */
+				if (ret = mod_rule(1, source, target, class, perm_token, &policydb)) {
+					fprintf(stderr, "Could not add rule for perm: %s\n", perm_token);
+					return ret;
+				}
 			}
 			perm_token = strtok_r(NULL, ",", &perm_saveptr);
 		}

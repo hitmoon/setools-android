@@ -32,7 +32,7 @@ Ensure that you have installed _android-ndk_ properly. Then run:
 ## Usage
 
     inject rules:
-    sepolicy-inject -s <source type> -t <target type> -c <class> -p <perm>[,<perm2>,<perm3>,...] [-P <policy file>] [-o <output file>] [-l|--load]
+    sepolicy-inject -s <source type> -t <target type> -c <class> -p <perm>[,<perm2>,<perm3>,...] [-P <policy file>] [-o <output file>] [-l|--load] [-r|--remove]
     add permissive domain:
     sepolicy-inject -Z permissive_type [-P <policy file>] [-o <output file>] [-l|--load]
     add non-permissive domain:

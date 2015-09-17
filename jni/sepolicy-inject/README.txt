@@ -6,6 +6,9 @@ libsepol.policydb_index_others: security:  1 users, 2 roles, 518 types, 14 bools
 libsepol.policydb_index_others: security: 1 sens, 1024 cats
 libsepol.policydb_index_others: security:  84 classes, 4539 rules, 162 cond rules
 
+Removing a rule:
+$ ./sepolicy-inject -r -s shell -t system -c file -p read -P sepolicy -o sepolicy2
+
 $ sesearch -A -s shell -t system -c file sepolicy
 Found 1 semantic av rules:
    allow appdomain domain : file { ioctl read getattr lock open } ; 
@@ -31,6 +34,5 @@ $ ./sepolicy-inject -z shell -P sepolicy -o sepolicy2
 TODO:
 
 Insert multiple rules at the same time
-Remove rules
 Use attributes 
 
