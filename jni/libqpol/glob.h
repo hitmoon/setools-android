@@ -39,10 +39,10 @@
 #include <sys/cdefs.h>
 #include <sys/_types.h>
 
-#ifndef	_SIZE_T_DECLARED
-typedef	__size_t	size_t;
-#define	_SIZE_T_DECLARED
-#endif
+//#ifndef	_SIZE_T_DECLARED
+//typedef	__size_t	size_t;
+//#define	_SIZE_T_DECLARED
+//#endif
 
 struct stat;
 typedef struct {
