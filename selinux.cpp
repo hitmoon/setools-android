@@ -163,7 +163,7 @@ int mod_rule(int add, char *s, char *t, char *c, char *p, policydb_t *policy) {
 	av = avtab_search(&policy->te_avtab, &key);
 
 	if (av == NULL && add) {
-		av = (avtab_datum_t *) malloc(sizeof av);
+		av = (avtab_datum_t *) malloc(sizeof *av);
 		if (av == NULL)
 			return 2;
 		av->data |= 1U << (perm->s.value - 1);
